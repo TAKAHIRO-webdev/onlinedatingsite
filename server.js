@@ -41,9 +41,10 @@ app.use((req,res, next) => {
     res.locals.user = req.user || null;
     next();
 });
-// load facebook strategy
+// load passport
 require('./passport/facebook');
 require('./passport/google');
+require('./passport/local');
 // connect to mLab MongoDB
 mongoose.connect(keys.MongoDB, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
   console.log('Server is connected to MongoDB');
@@ -140,8 +141,8 @@ app.post('/signup',(req,res) => {
             errors.push({text: 'Email already exists'});
             res.render('newAccount', {
                 title: 'Signup',
-                errors:erros
-            })
+                errors:errors
+            });
           }else{
               var salt = bcrypt.genSaltSync(10);
               var hash = bcrypt.hashSync(req.body.password, salt);
@@ -149,7 +150,7 @@ app.post('/signup',(req,res) => {
               const newUser = {
                   fullname: req.body.username,
                   email: req.body.email,
-                  passowrd: hash
+                  password: hash
               }
               new User(newUser).save((err,user) => {
                   if (err) {
@@ -157,7 +158,7 @@ app.post('/signup',(req,res) => {
                   }
                   if (user) {
                       let success = [];
-                      success.push({text:'You are successfully created account. You can login now'});
+                      success.push({text:'You successfully created account. You can login now'});
                       res.render('home', {
                           success: success
                       });
@@ -168,6 +169,17 @@ app.post('/signup',(req,res) => {
         });
     }
 });
+app.post('/login',passport.authenticate('local',{
+    successRedirect:'/profile',
+    failureRedirect: '/loginErrors'
+}));
+app.get('/loginErrors', (req,res) => {
+    let errors = [];
+    errors.push({text:'User Not found or Password Incorrect'});
+    res.render('home',{
+        errors:errors
+    });
+})
 app.get('/logout', (req,res) => {
     User.findById({_id:req.user._id})
     .then((user) => {
