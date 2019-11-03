@@ -99,7 +99,11 @@ app.get('/profile',requireLogin,(req,res) => {
         } 
     });
 });
-
+app.get('/newAccount', (req,res) => {
+    res.render('newAccount',{
+        title: 'Signup'
+    });
+});
 app.get('/logout', (req,res) => {
     User.findById({_id:req.user._id})
     .then((user) => {
