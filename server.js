@@ -25,6 +25,8 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+// setup express static folder to serve js, css files
+app.use(express.static('public'));
 // Make user global object
 app.use((req,res, next) => {
     res.locals.user = req.user || null;
