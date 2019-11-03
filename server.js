@@ -6,6 +6,7 @@ const passport = require('passport');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const flash = require('connect-flash');
+const bcrypt = require('bcryptjs');
 // Load models
 const Message = require('./models/message');
 const User = require('./models/user');
@@ -132,7 +133,39 @@ app.post('/signup',(req,res) => {
             password2: req.body.password2
         });
     }else{
-        res.send('No errors! Ready to create new account!');
+        User.findOne({email:req.body.email})
+        .then((user) => {
+          if (user) {
+            let errors = [];
+            errors.push({text: 'Email already exists'});
+            res.render('newAccount', {
+                title: 'Signup',
+                errors:erros
+            })
+          }else{
+              var salt = bcrypt.genSaltSync(10);
+              var hash = bcrypt.hashSync(req.body.password, salt);
+
+              const newUser = {
+                  fullname: req.body.username,
+                  email: req.body.email,
+                  passowrd: hash
+              }
+              new User(newUser).save((err,user) => {
+                  if (err) {
+                      throw err;
+                  }
+                  if (user) {
+                      let success = [];
+                      success.push({text:'You are successfully created account. You can login now'});
+                      res.render('home', {
+                          success: success
+                      });
+                  }
+              });
+              
+            }
+        });
     }
 });
 app.get('/logout', (req,res) => {
