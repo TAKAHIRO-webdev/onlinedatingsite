@@ -32,6 +32,7 @@ app.use((req,res, next) => {
 });
 // load facebook strategy
 require('./passport/facebook');
+require('./passport/google');
 // connect to mLab MongoDB
 mongoose.connect(keys.MongoDB, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
   console.log('Server is connected to MongoDB');
@@ -70,6 +71,15 @@ app.get('/auth/facebook/callback', passport.authenticate('facebook',{
     successRedirect: '/profile',
     failureRedirect: '/'
 }));
+
+app.get('/auth/google', passport.authenticate('google',{
+    scope: ['profile']
+}));
+app.get('/auth/google/callback', passport.authenticate('google', {
+    successRedirect: '/profile',
+    failureRedirect: '/'
+}));
+
 app.get('/profile',requireLogin,(req,res) => {
     User.findById({_id:req.user._id}).then((user) => {
           if (user) {
