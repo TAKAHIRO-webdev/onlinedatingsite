@@ -16,7 +16,7 @@ passport.deserializeUser((id,done) => {
 passport.use(new FacebookStrategy({
     clientID: keys.FacebookAppID,
     clientSecret: keys.FacebookAppSecret,
-    callbackURL: 'https://fierce-island-05808.herokuapp.com/auth/facebook/callback',
+    callbackURL: 'https://fierce-island-05808.herokuapp.com /auth/facebook/callback',
     profileFields: ['email', 'name', 'displayName','photos']
 },(accessToken, refreshToken, profile,done) => {
     console.log(profile);
