@@ -5,8 +5,10 @@ const keys = require('../config/keys');
 
 aws.config.update({
     accessKeyId: keys.AWSAccessKeyID,
-    secretAccessKey: keys.AWSAccessKeySecret
+    secretAccessKey: keys.AWSAccessKeySecret,
+    region: 'ap-northeast-1'
 });
+
 
 module.exports = {
     uploadImage: multer({
@@ -15,7 +17,7 @@ module.exports = {
             bucket: 'online-dating-app-for-people',
             acl: 'public-read',
             metadata: (req,file,cb) => {
-                cb(null,{fieldName: file.   fieldname});
+                cb(null,{fieldName: file.fieldname});
             },
             key: (req,file,cb) => {
                 cb(null,file.originalname);

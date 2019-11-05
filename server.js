@@ -191,7 +191,7 @@ app.get('/uploadImage',(req,res) => {
 app.post('/uploadAvatar',(req,res) => {
     User.findById({_id:req.user._id})
     .then((user) => {
-        user.image = req.body.upload;
+        user.image = `https://online-dating-app-for-people.s3-ap-northeast-1.amazonaws.com/${req.body.upload}`;
         user.save((err) => {
             if (err) {
                 throw err;
@@ -263,5 +263,4 @@ app.post('/contactUs', (req,res) => {
 
 app.listen(port, ()=> {
   console.log(`Server is running on port ${port}`);
-  console.log('keys.accessKeyId');
 });
