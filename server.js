@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const flash = require('connect-flash');
 const bcrypt = require('bcryptjs');
+const formidable = require('formidable');
 // Load models
 const Message = require('./models/message');
 const User = require('./models/user');
@@ -15,6 +16,7 @@ const app = express();
 const keys = require('./config/keys');
 // Load Helpers
 const {requireLogin,ensureGuest} = require('./helpers/auth');
+const {uploadImage} = require('./helpers/aws');
 // use body parser middleware
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
@@ -179,7 +181,41 @@ app.get('/loginErrors', (req,res) => {
     res.render('home',{
         errors:errors
     });
-})
+});
+// handle get route
+app.get('/uploadImage',(req,res) => {
+    res.render('uploadImage',{
+        title: 'Upload'
+    });
+});
+app.post('/uploadAvatar',(req,res) => {
+    User.findById({_id:req.user._id})
+    .then((user) => {
+        user.image = req.body.upload;
+        user.save((err) => {
+            if (err) {
+                throw err;
+            }
+            else{
+                res.redirect('/profile');
+            }
+        });
+    });
+});
+app.post('/uploadFile',uploadImage.any(),(req,res) => {
+    const form = new formidable.IncomingForm();
+    form.on('file', (field,file) => {
+        console.log(file);
+    });
+    form.on('error',(err) => {
+        console.log(err);
+    });
+    form.on('end',() => {
+      console.log('Image upload is successful .. ');
+    });
+    form.parse(req);
+});
+
 app.get('/logout', (req,res) => {
     User.findById({_id:req.user._id})
     .then((user) => {
@@ -227,4 +263,5 @@ app.post('/contactUs', (req,res) => {
 
 app.listen(port, ()=> {
   console.log(`Server is running on port ${port}`);
+  console.log('keys.accessKeyId');
 });
